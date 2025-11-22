@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import ProgramForm from './components/ProgramForm';
 import AdminDashboard from './components/AdminDashboard';
 import PublicSchedule from './components/PublicSchedule';
+import AdminLogin from './components/AdminLogin';
 import { getEntries } from './services/storageService';
 import { ProgramEntry, ProgramType } from './types';
 
 const App: React.FC = () => {
   const [view, setView] = useState<'user' | 'admin'>('user');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [entries, setEntries] = useState<ProgramEntry[]>([]);
   const [forceAddMode, setForceAddMode] = useState(false);
 
@@ -25,8 +27,16 @@ const App: React.FC = () => {
 
   // Toggle Admin/User View
   const toggleView = () => {
-    setView(prev => prev === 'user' ? 'admin' : 'user');
-    setForceAddMode(false); 
+    if (view === 'user') {
+      setView('admin');
+    } else {
+      setView('user');
+      setForceAddMode(false);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
   };
 
   // Determine what to render in User View
@@ -71,7 +81,11 @@ const App: React.FC = () => {
             <div className="flex items-center">
               <button
                 onClick={toggleView}
-                className="text-xs font-medium bg-church-50 text-church-600 px-3 py-1 rounded-full border border-church-200 hover:bg-church-100 transition-colors"
+                className={`text-xs font-medium px-3 py-1 rounded-full border transition-colors ${
+                   view === 'user' 
+                   ? 'bg-church-50 text-church-600 border-church-200 hover:bg-church-100'
+                   : 'bg-church-700 text-white border-church-700 hover:bg-church-800'
+                }`}
               >
                 {view === 'user' ? 'Admin Login' : 'Back to Public View'}
               </button>
@@ -83,7 +97,16 @@ const App: React.FC = () => {
       {/* Main Content Area */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="transition-all duration-300">
-          {view === 'user' ? renderUserView() : <AdminDashboard />}
+          {view === 'user' ? (
+            renderUserView()
+          ) : !isAuthenticated ? (
+            <AdminLogin 
+              onSuccess={handleLoginSuccess} 
+              onCancel={() => setView('user')}
+            />
+          ) : (
+            <AdminDashboard />
+          )}
         </div>
       </main>
     </div>
