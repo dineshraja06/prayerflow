@@ -1,0 +1,5 @@
+{
+  "name": " PrayerFlow ",
+  "description": "A collaborative prayer service coordinator enabling members to submit program items and admins to generate AI-powered schedules.",
+  "requestFramePermissions": []
+}
